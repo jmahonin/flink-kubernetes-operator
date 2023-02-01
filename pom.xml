@@ -44,6 +44,20 @@ under the License.
         </license>
     </licenses>
 
+    <distributionManagement>
+        <repository>
+            <id>decodable-mvn-releases-local</id>
+            <name>decodable-mvn-releases-local</name>
+            <url>https://decodable-671293015970.d.codeartifact.us-west-2.amazonaws.com/maven/decodable-mvn-releases-local/</url>
+        </repository>
+        <snapshotRepository>
+            <id>decodable-mvn-snapshots-local</id>
+            <name>decodable-mvn-snapshots-local</name>
+            <url>https://decodable-671293015970.d.codeartifact.us-west-2.amazonaws.com/maven/decodable-mvn-snapshots-local/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+
     <scm>
         <url>https://github.com/apache/flink-kubernetes-operator</url>
         <connection>git@github.com:apache/flink-kubernetes-operator.git</connection>
