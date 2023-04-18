@@ -302,6 +302,7 @@ This page serves as a full reference for FlinkDeployment custom resource definit
 | updateTime | java.lang.String | Update time of the job. |
 | savepointInfo | org.apache.flink.kubernetes.operator.api.status.SavepointInfo | Information about pending and last savepoint for the job. |
 | checkpointInfo | org.apache.flink.kubernetes.operator.api.status.CheckpointInfo | Information about pending and last checkpoint for the job. |
+| exceptionHistory | java.util.List<org.apache.flink.kubernetes.operator.api.status.StatusExceptionInfo> |  |
 
 ### ReconciliationState
 **Class**: org.apache.flink.kubernetes.operator.api.status.ReconciliationState
@@ -365,6 +366,17 @@ This page serves as a full reference for FlinkDeployment custom resource definit
 | PERIODIC | Snapshot periodically triggered by the operator. |
 | UPGRADE | Snapshot triggered during stateful upgrade. |
 | UNKNOWN | Snapshot trigger mechanism unknown, such as savepoint retrieved directly from Flink job. |
+
+### StatusExceptionInfo
+**Class**: org.apache.flink.kubernetes.operator.api.status.StatusExceptionInfo
+
+**Description**: Exception history item for the JobStatus.
+
+| Parameter | Type | Docs |
+| ----------| ---- | ---- |
+| stacktrace | java.lang.String |  |
+| taskName | java.lang.String |  |
+| timestamp | long |  |
 
 ### TaskManagerInfo
 **Class**: org.apache.flink.kubernetes.operator.api.status.TaskManagerInfo

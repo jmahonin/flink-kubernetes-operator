@@ -63,6 +63,7 @@ import org.apache.flink.runtime.messages.webmonitor.JobDetails;
 import org.apache.flink.runtime.messages.webmonitor.MultipleJobsDetails;
 import org.apache.flink.runtime.rest.messages.DashboardConfiguration;
 import org.apache.flink.runtime.rest.messages.EmptyResponseBody;
+import org.apache.flink.runtime.rest.messages.JobExceptionsInfoWithHistory;
 import org.apache.flink.runtime.rest.messages.JobsOverviewHeaders;
 import org.apache.flink.runtime.rest.messages.job.metrics.AggregatedMetric;
 import org.apache.flink.runtime.rest.messages.job.metrics.AggregatedMetricsResponseBody;
@@ -329,6 +330,12 @@ public class TestingFlinkService extends AbstractFlinkService {
         }
 
         return SavepointFetchResult.error("Failed");
+    }
+
+    @Override
+    public List<JobExceptionsInfoWithHistory.RootExceptionInfo> getExceptionHistory(
+            Configuration conf, JobID jobId) {
+        return List.of();
     }
 
     @Override

@@ -95,13 +95,6 @@ public class FlinkDeploymentController
 
         String msg = "Cleaning up " + FlinkDeployment.class.getSimpleName();
         LOG.info(msg);
-        eventRecorder.triggerEvent(
-                flinkApp,
-                EventRecorder.Type.Normal,
-                EventRecorder.Reason.Cleanup,
-                EventRecorder.Component.Operator,
-                msg,
-                josdkContext.getClient());
         statusRecorder.updateStatusFromCache(flinkApp);
         var ctx = ctxFactory.getResourceContext(flinkApp, josdkContext);
         try {
