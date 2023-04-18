@@ -19,44 +19,19 @@ package org.apache.flink.kubernetes.operator.api.status;
 
 import org.apache.flink.annotation.Experimental;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.fabric8.kubernetes.model.annotation.PrinterColumn;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
-/** Last observed status of the Flink job within an application deployment. */
+/** Exception history item for the JobStatus. */
 @Experimental
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class JobStatus {
-    /** Name of the job. */
-    private String jobName;
-
-    /** Flink JobId of the Job. */
-    private String jobId;
-
-    /** Last observed state of the job. */
-    @PrinterColumn(name = "Job Status")
-    private String state;
-
-    /** Start time of the job. */
-    private String startTime;
-
-    /** Update time of the job. */
-    private String updateTime;
-
-    /** Information about pending and last savepoint for the job. */
-    private SavepointInfo savepointInfo = new SavepointInfo();
-
-    /** Information about pending and last checkpoint for the job. */
-    private CheckpointInfo checkpointInfo = new CheckpointInfo();
-
-    private List<StatusExceptionInfo> exceptionHistory;
+public class StatusExceptionInfo {
+    private String stacktrace;
+    private String taskName;
+    private long timestamp;
 }

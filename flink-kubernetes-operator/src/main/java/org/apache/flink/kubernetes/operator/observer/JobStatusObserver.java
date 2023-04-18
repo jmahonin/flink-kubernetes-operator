@@ -20,10 +20,12 @@ package org.apache.flink.kubernetes.operator.observer;
 import org.apache.flink.kubernetes.operator.api.AbstractFlinkResource;
 import org.apache.flink.kubernetes.operator.api.spec.JobState;
 import org.apache.flink.kubernetes.operator.api.status.JobStatus;
+import org.apache.flink.kubernetes.operator.api.status.StatusExceptionInfo;
 import org.apache.flink.kubernetes.operator.controller.FlinkResourceContext;
 import org.apache.flink.kubernetes.operator.reconciler.ReconciliationUtils;
 import org.apache.flink.kubernetes.operator.utils.EventRecorder;
 import org.apache.flink.runtime.client.JobStatusMessage;
+import org.apache.flink.runtime.rest.messages.JobExceptionsInfoWithHistory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import static org.apache.flink.kubernetes.operator.utils.FlinkResourceExceptionUtils.updateFlinkResourceException;
 
@@ -94,7 +97,17 @@ public abstract class JobStatusObserver<R extends AbstractFlinkResource<?, ?>> {
                 onTargetJobNotFound(ctx);
                 return false;
             } else {
-                updateJobStatus(ctx, targetJobStatusMessage.get());
+                var statusMessage = targetJobStatusMessage.get();
+                List<JobExceptionsInfoWithHistory.RootExceptionInfo> exceptionHistory = List.of();
+                try {
+                    exceptionHistory =
+                            ctx.getFlinkService()
+                                    .getExceptionHistory(
+                                            ctx.getObserveConfig(), statusMessage.getJobId());
+                } catch (Exception e) {
+                    LOG.warn("Unable to retrieve exception history", e);
+                }
+                updateJobStatus(ctx, statusMessage, exceptionHistory);
             }
             ReconciliationUtils.checkAndUpdateStableSpec(resource.getStatus());
             return true;
@@ -158,7 +171,10 @@ public abstract class JobStatusObserver<R extends AbstractFlinkResource<?, ?>> {
      * @param ctx Resource context.
      * @param clusterJobStatus the status fetch from the cluster.
      */
-    private void updateJobStatus(FlinkResourceContext<R> ctx, JobStatusMessage clusterJobStatus) {
+    private void updateJobStatus(
+            FlinkResourceContext<R> ctx,
+            JobStatusMessage clusterJobStatus,
+            List<JobExceptionsInfoWithHistory.RootExceptionInfo> exceptionHistory) {
         var resource = ctx.getResource();
         var jobStatus = resource.getStatus().getJobStatus();
         var previousJobId = jobStatus.getJobId();
@@ -168,6 +184,7 @@ public abstract class JobStatusObserver<R extends AbstractFlinkResource<?, ?>> {
         jobStatus.setJobName(clusterJobStatus.getJobName());
         jobStatus.setJobId(clusterJobStatus.getJobId().toHexString());
         jobStatus.setStartTime(String.valueOf(clusterJobStatus.getStartTime()));
+        jobStatus.setExceptionHistory(convertExceptionHistory(exceptionHistory));
 
         if (jobStatus.getJobId().equals(previousJobId)
                 && jobStatus.getState().equals(previousJobStatus)) {
@@ -190,6 +207,18 @@ public abstract class JobStatusObserver<R extends AbstractFlinkResource<?, ?>> {
                     message,
                     ctx.getKubernetesClient());
         }
+    }
+
+    private static List<StatusExceptionInfo> convertExceptionHistory(
+            List<JobExceptionsInfoWithHistory.RootExceptionInfo> flinkExceptionHistory) {
+        return flinkExceptionHistory.stream()
+                .map(
+                        flinkException ->
+                                new StatusExceptionInfo(
+                                        flinkException.getStacktrace(),
+                                        flinkException.getTaskName(),
+                                        flinkException.getTimestamp()))
+                .collect(Collectors.toList());
     }
 
     private void setErrorIfPresent(FlinkResourceContext<R> ctx, JobStatusMessage clusterJobStatus) {

@@ -9829,6 +9829,17 @@ spec:
                       lastPeriodicCheckpointTimestamp:
                         type: integer
                     type: object
+                  exceptionHistory:
+                    items:
+                      properties:
+                        stacktrace:
+                          type: string
+                        taskName:
+                          type: string
+                        timestamp:
+                          type: integer
+                      type: object
+                    type: array
                 type: object
               error:
                 type: string

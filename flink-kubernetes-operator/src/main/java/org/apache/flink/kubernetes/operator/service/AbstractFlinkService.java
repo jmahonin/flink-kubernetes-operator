@@ -62,6 +62,8 @@ import org.apache.flink.runtime.rest.handler.async.AsynchronousOperationResult;
 import org.apache.flink.runtime.rest.messages.DashboardConfiguration;
 import org.apache.flink.runtime.rest.messages.EmptyMessageParameters;
 import org.apache.flink.runtime.rest.messages.EmptyRequestBody;
+import org.apache.flink.runtime.rest.messages.JobExceptionsHeaders;
+import org.apache.flink.runtime.rest.messages.JobExceptionsInfoWithHistory;
 import org.apache.flink.runtime.rest.messages.JobsOverviewHeaders;
 import org.apache.flink.runtime.rest.messages.TriggerId;
 import org.apache.flink.runtime.rest.messages.checkpoints.CheckpointInfo;
@@ -69,6 +71,7 @@ import org.apache.flink.runtime.rest.messages.checkpoints.CheckpointStatusHeader
 import org.apache.flink.runtime.rest.messages.checkpoints.CheckpointStatusMessageParameters;
 import org.apache.flink.runtime.rest.messages.checkpoints.CheckpointTriggerHeaders;
 import org.apache.flink.runtime.rest.messages.checkpoints.CheckpointTriggerRequestBody;
+import org.apache.flink.runtime.rest.messages.job.JobExceptionsMessageParameters;
 import org.apache.flink.runtime.rest.messages.job.metrics.JobMetricsHeaders;
 import org.apache.flink.runtime.rest.messages.job.savepoints.SavepointDisposalRequest;
 import org.apache.flink.runtime.rest.messages.job.savepoints.SavepointDisposalTriggerHeaders;
@@ -1136,5 +1139,25 @@ public abstract class AbstractFlinkService implements FlinkService {
 
         long elapsedMillis = System.currentTimeMillis() - start;
         return Duration.ofMillis(Math.max(0, timeout.toMillis() - elapsedMillis));
+    }
+
+    @Override
+    public List<JobExceptionsInfoWithHistory.RootExceptionInfo> getExceptionHistory(
+            Configuration conf, JobID jobId) throws Exception {
+        try (RestClusterClient<String> clusterClient =
+                (RestClusterClient<String>) getClusterClient(conf)) {
+            final JobExceptionsMessageParameters params = new JobExceptionsMessageParameters();
+            params.jobPathParameter.resolve(jobId);
+            var result =
+                    clusterClient
+                            .sendRequest(
+                                    JobExceptionsHeaders.getInstance(),
+                                    params,
+                                    EmptyRequestBody.getInstance())
+                            .get(
+                                    operatorConfig.getFlinkClientTimeout().toSeconds(),
+                                    TimeUnit.SECONDS);
+            return result.getExceptionHistory().getEntries();
+        }
     }
 }
