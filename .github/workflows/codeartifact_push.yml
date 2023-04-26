@@ -5,9 +5,9 @@ on:
   push:
     branches:
       - main
-      - 'release-*'
+      - 'release-*-deco'
     tags:
-      - 'release-*-rc*'
+      - 'release-*-deco*'
 jobs:
   build_n_push:
     runs-on: ubuntu-latest
