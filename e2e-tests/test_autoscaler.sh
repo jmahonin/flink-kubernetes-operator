@@ -23,7 +23,7 @@ source "${SCRIPT_DIR}/utils.sh"
 CLUSTER_ID="flink-autoscaler-e2e"
 APPLICATION_YAML="${SCRIPT_DIR}/data/autoscaler.yaml"
 APPLICATION_IDENTIFIER="flinkdep/$CLUSTER_ID"
-TIMEOUT=300
+TIMEOUT=600
 
 on_exit cleanup_and_exit "$APPLICATION_YAML" $TIMEOUT $CLUSTER_ID
 

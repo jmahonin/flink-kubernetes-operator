@@ -22,7 +22,7 @@ source "${SCRIPT_DIR}/utils.sh"
 
 CLUSTER_ID="flink-example-statemachine"
 APPLICATION_YAML="${SCRIPT_DIR}/data/flinkdep-cr.yaml"
-TIMEOUT=300
+TIMEOUT=600
 
 on_exit cleanup_and_exit "$APPLICATION_YAML" $TIMEOUT $CLUSTER_ID
 

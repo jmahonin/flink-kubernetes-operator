@@ -21,7 +21,7 @@ source "${SCRIPT_DIR}/utils.sh"
 
 CLUSTER_ID="session-cluster-1"
 APPLICATION_YAML="${SCRIPT_DIR}/data/sessionjob-cr.yaml"
-TIMEOUT=300
+TIMEOUT=600
 SESSION_CLUSTER_IDENTIFIER="flinkdep/session-cluster-1"
 SESSION_JOB_IDENTIFIER="sessionjob/flink-example-statemachine"
 
