@@ -29,10 +29,12 @@ on:
       - 'release-*'
 env:
   AWS_ACCOUNT: 671293015970
-  AWS_REGION: us-west-2
 jobs:
   build_image:
     runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        region: ["us-west-2", "us-east-1", "eu-central-1", "af-south-1", "ap-southeast-2"]
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
@@ -57,18 +59,18 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ matrix.AWS_REGION }}
 
       - name: Docker auth
         run: |
-          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+          aws ecr get-login-password --region ${{ matrix.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ matrix.AWS_REGION }}.amazonaws.com
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v3
         with:
           images: |
-            ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/flink-kubernetes-operator
+            ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ matrix.AWS_REGION }}.amazonaws.com/flink-kubernetes-operator
           tags: |
             type=raw,value=${{ env.OPERATOR_VERSION }}
             type=sha,prefix=,format=short
