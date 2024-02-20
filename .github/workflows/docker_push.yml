@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: 
-        region: ["us-west-2", "us-east-1", "eu-central-1", "af-south-1", "ap-southeast-2"]
+        AWS_REGION: ["us-west-2", "us-east-1", "eu-central-1", "af-south-1", "ap-southeast-2"]
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
